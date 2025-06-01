@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
+import os
 
 app = Flask(__name__)
 
@@ -13,14 +14,11 @@ def scrape_images(search_keyword):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--window-size=1920x1080")
-    chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-    )
-    
-    # 🔧 Required for Render
-    chrome_options.binary_location = "/usr/bin/chromium"
-    chrome_service = Service("/usr/bin/chromedriver")
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+
+    # ✅ Use Render's internal chromium path
+    chrome_options.binary_location = "/opt/render/project/.render/chromium/chrome"
+    chrome_service = Service("/opt/render/project/.render/chromium/chromedriver")
 
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
