@@ -17,7 +17,8 @@ def scrape_images(search_keyword):
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
 
     # ✅ Use Render's internal chromium path
-    chrome_options.binary_location = "/opt/render/project/.render/chromium/chrome"
+   
+    chrome_options.binary_location = "/usr/bin/chromium"
     chrome_service = Service("/opt/render/project/.render/chromium/chromedriver")
 
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
