@@ -1,10 +1,8 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
-import os
 
 app = Flask(__name__)
 
@@ -14,14 +12,9 @@ def scrape_images(search_keyword):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--window-size=1920x1080")
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+    chrome_options.binary_location = "/usr/bin/chromium"  # correct path in Docker
 
-    # ✅ Use Render's internal chromium path
-   
-    chrome_options.binary_location = "/usr/bin/chromium"
-    chrome_service = Service("/opt/render/project/.render/chromium/chromedriver")
-
-    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
 
     start_url = f"https://hotnakedwomen.com/ru/search/{search_keyword}/"
     driver.get(start_url)
@@ -70,12 +63,12 @@ def scrape_images(search_keyword):
     driver.quit()
     return result
 
-@app.route('/scrape', methods=['POST'])
+@app.route("/scrape", methods=["POST"])
 def scrape_endpoint():
     data = request.get_json(force=True)
-    keyword = data.get('keyword')
+    keyword = data.get("keyword")
     if not keyword:
-        return jsonify({"error": "Missing 'keyword' in JSON body"}), 400
+        return jsonify({"error": "Missing 'keyword' in request body"}), 400
 
     try:
         result = scrape_images(keyword)
@@ -83,5 +76,5 @@ def scrape_endpoint():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=8000)
