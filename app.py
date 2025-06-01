@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
 
@@ -16,9 +17,12 @@ def scrape_images(search_keyword):
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     )
-    chrome_options.binary_location = "/usr/bin/chromium"  # needed for render
+    
+    # 🔧 Required for Render
+    chrome_options.binary_location = "/usr/bin/chromium"
+    chrome_service = Service("/usr/bin/chromedriver")
 
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
     start_url = f"https://hotnakedwomen.com/ru/search/{search_keyword}/"
     driver.get(start_url)
@@ -62,13 +66,10 @@ def scrape_images(search_keyword):
                         image_links.append("https://hotnakedwomen.com" + href)
 
         image_links = list(dict.fromkeys(image_links))
-
         result[f"image_set_{idx}"] = image_links
 
     driver.quit()
-
     return result
-
 
 @app.route('/scrape', methods=['POST'])
 def scrape_endpoint():
@@ -82,7 +83,6 @@ def scrape_endpoint():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
